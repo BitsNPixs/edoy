@@ -1,0 +1,49 @@
+---
+import { siteData } from '../data/site.js';
+
+const { header, site } = siteData;
+---
+
+<!-- ============ HEADER ============ -->
+<header class="site-header" id="siteHeader">
+
+    <!-- full-bleed hairline, broken only by the centre monogram -->
+    <span class="site-header__rule site-header__rule--left"></span>
+    <span class="site-header__rule site-header__rule--right"></span>
+
+    <div class="site-header__inner">
+
+        <div class="site-header__side site-header__side--start">
+            <a class="site-header__brand" href={header.brand.href}>
+                <img class="site-header__brand-img" src={header.brand.src} alt={header.brand.alt}>
+            </a>
+        </div>
+
+        <a class="site-header__monogram" href={header.monogram.href}>
+            <img class="site-header__monogram-img" src={header.monogram.src} alt={header.monogram.alt}>
+        </a>
+
+        <div class="site-header__side site-header__side--end">
+            <nav class="site-nav" id="siteNav">
+                <ul class="site-nav__list">
+                    {header.nav.map((item) => (
+                        <li class="site-nav__item">
+                            <a class="site-nav__link" href={item.href}>{item.label}</a>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </div>
+
+        <button class="site-header__toggle" id="navToggle" type="button" aria-expanded="false"
+            aria-controls="siteNav" aria-label={site.menuLabel}>
+            <span class="site-header__bar"></span>
+            <span class="site-header__bar"></span>
+            <span class="site-header__bar"></span>
+        </button>
+
+    </div>
+</header>
+
+<!-- dim layer behind the mobile side-bar -->
+<div class="nav-backdrop" id="navBackdrop"></div>

@@ -1,0 +1,31 @@
+---
+import { siteData } from '../data/site.js';
+
+const { category } = siteData;
+---
+
+<!-- ============ SHOP BY CATEGORY ============ -->
+<section class="category" id="category">
+    <div class="category__head">
+        <h2 class="category__heading">
+            <span class="category__heading-lead">{category.heading.lead}</span>
+            <span class="category__heading-script">{category.heading.script}</span>
+        </h2>
+    </div>
+
+    <ul class="category__grid">
+        {category.items.map((item) => (
+            <li class="category__item">
+                <a class="category__card" href={item.href}>
+                    <img class="category__img" src={item.src} alt={item.alt || ''}>
+                    <img class="category__mark" src={category.mark} alt="" aria-hidden="true">
+                    <span class="category__body">
+                        <span class="category__brand">{item.brand}</span>
+                        <span class="category__title">{item.title}</span>
+                        <span class="category__cta">{item.cta}</span>
+                    </span>
+                </a>
+            </li>
+        ))}
+    </ul>
+</section>

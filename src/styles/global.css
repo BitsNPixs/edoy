@@ -1,0 +1,1620 @@
+/* =========================================================
+   EDOY - style.css
+   Plain CSS written in an SCSS-like nested structure
+   (native CSS nesting).
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. ROOT TOKENS
+   --------------------------------------------------------- */
+:root {
+    /* colours */
+    --clr-navy: #131f45;
+    --clr-navy-dark: #0c1631;
+    --clr-white: #ffffff;
+    --clr-heading: #131f45;
+    --clr-body: #2f3542;
+    --clr-line: #b9c0cf;
+    --clr-nav: #131f45;
+    --clr-nav-sep: #9aa3b8;
+    --clr-shadow: rgba(19, 31, 69, 0.18);
+    --clr-surface: #ffffff;
+    --clr-muted: #8f9096;
+    --clr-on-dark: #ffffff;
+    --clr-ink: #1b1c1f;
+    --clr-cream: #f6ecc9;
+
+    /* typography */
+    --ff-display: "Playfair Display", Georgia, "Times New Roman", serif;
+    --ff-script: "Pacifico", "Brush Script MT", cursive;
+
+    --fs-title: clamp(1.75rem, 5.4vw, 4.5rem);
+    --fs-tagline: clamp(1.15rem, 2.1vw, 1.75rem);
+    --fs-text: clamp(0.8rem, 1.2vw, 1.15rem);
+    --fs-nav: clamp(0.72rem, 0.85vw, 0.85rem);
+    --fs-btn: clamp(0.8rem, 0.95vw, 0.95rem);
+    --fs-stmt: clamp(1rem, 2.3vw, 2.05rem);
+    --fs-label: clamp(0.8rem, 1.35vw, 1.25rem);
+
+    /* layout */
+    --header-h: clamp(64px, 8vh, 96px);
+    --rule-drop: clamp(6px, 1.25vw, 18px);
+    /* rule + monogram sit below the word-mark */
+    --mono-w: clamp(38px, 4.2vw, 64px);
+    /* centre monogram width */
+    --mono-gap: clamp(2px, 0.4vw, 6px);
+    /* breathing room where the rule breaks */
+    --slide-w: clamp(210px, 30vw, 420px);
+    /* slider slide width */
+    --slide-gap: clamp(4px, 0.55vw, 10px);
+    --tile-h: clamp(230px, 28.9vw, 400px);
+    /* collection row height */
+    --tile-gap: clamp(6px, 1.15vw, 8px);
+    --quote-w: clamp(220px, 29.3vw, 420px);
+    /* testimonial card width */
+    --quote-gap: clamp(10px, 1.6vw, 22px);
+    --gutter: clamp(1.25rem, 4vw, 5rem);
+
+    /* one vertical rhythm for every content section: same top and bottom.
+     --section-pad-tight is only for a seam inside a block (the HOT Sale row
+     sits directly on top of its slider). */
+    --section-pad: clamp(1.75rem, 3.6vw, 5.5rem);
+    --section-pad-tight: clamp(1rem, 2.6vw, 2.5rem);
+    --wrap: 1600px;
+    --radius: 0px;
+
+    /* motion */
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --speed: 0.3s;
+}
+
+/* ---------------------------------------------------------
+   2. BASE / RESET
+   --------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--ff-display);
+    font-size: var(--fs-text);
+    color: var(--clr-body);
+    background: var(--clr-white);
+    overflow-x: hidden;
+
+    &.nav-open {
+        overflow: hidden;
+    }
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+button {
+    font: inherit;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+/* only used by the mobile side-bar */
+.nav-backdrop {
+    display: none;
+
+    @media (max-width: 860px) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 55;
+        background: rgba(12, 22, 49, 0.45);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--speed) var(--ease),
+            visibility var(--speed) var(--ease);
+
+        body.nav-open & {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   3. HEADER
+   --------------------------------------------------------- */
+.site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    transition: transform var(--speed) var(--ease),
+        background-color var(--speed) var(--ease),
+        box-shadow var(--speed) var(--ease);
+
+    /* only once the page has actually moved - transparent over the hero */
+    &.is-stuck {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 1px 18px rgba(19, 31, 69, 0.08);
+
+        /* the scrolled bar is word-mark + nav only. Faded rather than
+           display:none so the monogram keeps its grid column and the
+           word-mark / nav do not shift sideways. */
+        .site-header__rule,
+        .site-header__monogram {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+
+    /* hidden while scrolling down, back on the way up.
+     NB: the transform lives ONLY in this state. A transform on the header
+     would make it a containing block and trap the position:fixed side-bar
+     inside it, so it must be `none` whenever the menu can be open. */
+    &.is-hidden {
+        transform: translateY(-100%);
+    }
+
+    body.nav-open & {
+        transform: none;
+    }
+
+    /* 1fr | monogram | 1fr  -> the monogram is always dead centre */
+    .site-header__inner {
+        width: 100%;
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        column-gap: clamp(0.75rem, 1.6vw, 1.75rem);
+    }
+
+    .site-header__side {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.75rem, 1.6vw, 1.75rem);
+        min-width: 0;
+
+        &.site-header__side--end {
+            justify-content: flex-start;
+        }
+    }
+
+    /* --- left word-mark --- */
+    .site-header__brand {
+        flex: none;
+        display: block;
+        line-height: 0;
+
+        .site-header__brand-img {
+            width: clamp(52px, 5vw, 76px);
+        }
+    }
+
+    /* --- the hairline ---
+     one full-bleed rule at a fixed height, split around the monogram.
+     It sits below the word-mark / nav baseline, so the copy floats above it. */
+    .site-header__rule {
+        position: absolute;
+        top: calc(var(--header-h) / 2 + var(--rule-drop));
+        height: 1px;
+        background: var(--clr-line);
+        margin-top: 10px;
+        transition: opacity var(--speed) var(--ease),
+            visibility var(--speed) var(--ease);
+
+        &.site-header__rule--left {
+            left: 0;
+            right: calc(50% + var(--mono-w) / 2 + var(--mono-gap));
+        }
+
+        &.site-header__rule--right {
+            left: calc(50% + var(--mono-w) / 2 + var(--mono-gap));
+            right: 0;
+        }
+    }
+
+    /* --- centre monogram: its middle lands on the rule --- */
+    .site-header__monogram {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+        position: relative;
+        top: var(--rule-drop);
+        transition: transform var(--speed) var(--ease),
+            opacity var(--speed) var(--ease),
+            visibility var(--speed) var(--ease);
+        margin-top: 10px;
+
+        .site-header__monogram-img {
+            width: 70%;
+        }
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+
+    /* --- hamburger (mobile only) --- */
+    .site-header__toggle {
+        display: none;
+        flex: none;
+        width: 34px;
+        height: 24px;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .site-header__bar {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background: var(--clr-navy);
+            transition: transform var(--speed) var(--ease),
+                opacity var(--speed) var(--ease);
+        }
+    }
+
+    /* --- mobile: burger left, both marks locked up in the centre --- */
+    @media (max-width: 860px) {
+        z-index: 70;
+        /* stays above the side-bar + backdrop */
+
+        /* the side-bar needs a solid strip behind the burger while it is open */
+        body.nav-open & {
+            background: var(--clr-white);
+        }
+
+        /* monogram + word-mark read as one centred lockup */
+        .site-header__inner {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(4px, 1.5vw, 10px);
+        }
+
+        .site-header__rule {
+            display: none;
+        }
+
+        /* first half of the lockup - back in normal flow, no centring
+           offsets, so it sits flush against the word-mark */
+        .site-header__monogram {
+            order: 1;
+            display: flex;
+            position: static;
+            top: auto;
+            translate: none;
+            margin-top: 0;
+            width: clamp(30px, 9.5vw, 42px);
+        }
+
+        /* unlike desktop, the small bar keeps both marks while scrolling:
+           monogram centred, word-mark right */
+        &.is-stuck .site-header__monogram {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* second half of the lockup */
+        .site-header__side--start {
+            order: 2;
+            margin-left: 0;
+        }
+
+        /* the nav is a fixed side-bar here. Dropping it out of the flex flow
+           stops the empty box claiming a gap and pulling the lockup
+           off-centre. */
+        .site-header__side--end {
+            display: contents;
+        }
+
+        /* pulled out of the flow so it cannot shift the centred lockup */
+        .site-header__toggle {
+            display: flex;
+            position: absolute;
+            left: var(--gutter);
+            top: 50%;
+            translate: 0 -50%;
+            z-index: 80;
+            /* clickable over the open side-bar */
+
+            body.nav-open & {
+                .site-header__bar:nth-child(1) {
+                    transform: translateY(9px) rotate(45deg);
+                }
+
+                .site-header__bar:nth-child(2) {
+                    opacity: 0;
+                }
+
+                .site-header__bar:nth-child(3) {
+                    transform: translateY(-9px) rotate(-45deg);
+                }
+            }
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   4. NAVIGATION
+   --------------------------------------------------------- */
+.site-nav {
+    flex: none;
+    margin-left: auto;
+
+    .site-nav__list {
+        display: flex;
+        align-items: center;
+    }
+
+    .site-nav__item {
+        display: flex;
+        align-items: center;
+
+        &::after {
+            content: "";
+            width: 1px;
+            height: 13px;
+            margin-inline: clamp(0.9rem, 1.8vw, 1.6rem);
+            background: var(--clr-nav-sep);
+        }
+
+        &:last-child::after {
+            display: none;
+        }
+    }
+
+    .site-nav__link {
+        position: relative;
+        font-family: var(--ff-display);
+        font-size: var(--fs-nav);
+        font-weight: 500;
+        letter-spacing: 0.09em;
+        color: var(--clr-nav);
+        white-space: nowrap;
+        padding-block: 0.35rem;
+
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 1px;
+            background: var(--clr-navy);
+            transition: width var(--speed) var(--ease);
+        }
+
+        &:hover::after,
+        &:focus-visible::after {
+            width: 100%;
+        }
+    }
+
+    /* --- mobile: full-height side-bar pinned to the left edge --- */
+    @media (max-width: 860px) {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 60;
+        width: min(78vw, 320px);
+        margin-left: 0;
+        background: var(--clr-white);
+        box-shadow: 0 0 44px var(--clr-shadow);
+        overflow-y: auto;
+
+        visibility: hidden;
+        transform: translateX(-100%);
+        transition: transform var(--speed) var(--ease),
+            visibility var(--speed) var(--ease);
+
+        body.nav-open & {
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .site-nav__list {
+            flex-direction: column;
+            align-items: stretch;
+            padding: calc(var(--header-h) + 0.75rem) clamp(1.25rem, 6vw, 2rem) 2rem;
+        }
+
+        .site-nav__item {
+            display: block;
+
+            &::after {
+                display: block;
+                width: 100%;
+                height: 1px;
+                margin: 0;
+            }
+        }
+
+        .site-nav__link {
+            display: block;
+            padding-block: 1.05rem;
+            font-size: 0.9rem;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   5. HERO / BANNER
+   --------------------------------------------------------- */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    background-color: #dfe6ef;
+    background-repeat: no-repeat;
+    background-position: 75% center;
+    background-size: cover;
+
+    .hero__inner {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+        /* only enough to clear the fixed header and the scroll cue -
+       the flex centring above does the vertical placement */
+        padding-block: var(--header-h) clamp(3rem, 8vh, 5rem);
+        display: flex;
+        align-items: center;
+    }
+
+    /* wide enough to keep the headline + tagline on one line each */
+    .hero__content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: min(48rem, 100%);
+    }
+
+    .hero__title {
+        margin: 0;
+        font-family: var(--ff-display);
+        font-size: var(--fs-title);
+        font-weight: 400;
+        line-height: 1.04;
+        letter-spacing: 0.005em;
+        color: var(--clr-heading);
+    }
+
+    .hero__tagline {
+        margin: clamp(0.9rem, 2vh, 1.5rem) 0 0;
+        font-family: var(--ff-script);
+        font-size: var(--fs-tagline);
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--clr-heading);
+    }
+
+    .hero__text {
+        margin: clamp(0.9rem, 2vh, 1.4rem) 0 0;
+        max-width: clamp(15rem, 29vw, 25rem);
+        font-family: var(--ff-display);
+        font-size: var(--fs-text);
+        font-weight: 400;
+        line-height: 1.75;
+        color: var(--clr-body);
+    }
+
+    /* inline-grid + equal tracks = both buttons share the wider one's width */
+    .hero__actions {
+        margin-top: clamp(1.4rem, 3.4vh, 2.4rem);
+        display: inline-grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: fit-content;
+        max-width: 100%;
+        gap: clamp(0.75rem, 1.4vw, 1.25rem);
+    }
+
+    /* --- scroll cue --- */
+    .hero__scroll {
+        position: absolute;
+        z-index: 3;
+        left: 50%;
+        bottom: clamp(1.5rem, 4vh, 3rem);
+        transform: translateX(-50%);
+        line-height: 0;
+        animation: hero-bob 2.4s var(--ease) infinite;
+
+        .hero__scroll-img {
+            width: clamp(34px, 3vw, 44px);
+        }
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    /* --- tablets --- */
+    @media (max-width: 992px) {
+        background-position: 72% center;
+    }
+
+    /* --- phones: content centred --- */
+    @media (max-width: 600px) {
+        background-position: 77% center;
+
+        .hero__inner {
+            justify-content: center;
+        }
+
+        .hero__content {
+            width: 100%;
+            /* fill the gutter box so centring is true */
+            max-width: 100%;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero__text {
+            max-width: 18rem;
+        }
+
+        .hero__actions {
+            width: 100%;
+            gap: 0.75rem;
+        }
+    }
+
+    /* --- small phones: stack the buttons --- */
+    @media (max-width: 430px) {
+        .hero__actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* --- short / landscape screens --- */
+    @media (max-height: 520px) and (orientation: landscape) {
+        .hero__inner {
+            padding-block: var(--header-h) 2.5rem;
+        }
+
+        .hero__scroll {
+            display: none;
+        }
+    }
+}
+
+@keyframes hero-bob {
+
+    0%,
+    100% {
+        transform: translate(-50%, 0);
+    }
+
+    50% {
+        transform: translate(-50%, 8px);
+    }
+}
+
+/* ---------------------------------------------------------
+   6. BUTTONS
+   --------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: clamp(140px, 13vw, 172px);
+    padding: clamp(0.7rem, 1.4vh, 0.95rem) clamp(1.1rem, 2vw, 1.6rem);
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+
+    font-family: var(--ff-display);
+    font-size: var(--fs-btn);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+
+    transition: background-color var(--speed) var(--ease),
+        color var(--speed) var(--ease),
+        border-color var(--speed) var(--ease),
+        transform var(--speed) var(--ease);
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &.btn--primary {
+        background: var(--clr-navy);
+        border-color: var(--clr-navy);
+        color: var(--clr-white);
+
+        &:hover {
+            background: var(--clr-navy-dark);
+            border-color: var(--clr-navy-dark);
+        }
+    }
+
+    &.btn--ghost {
+        background: var(--clr-white);
+        border-color: var(--clr-white);
+        color: var(--clr-navy);
+
+        &:hover {
+            background: var(--clr-navy);
+            border-color: var(--clr-navy);
+            color: var(--clr-white);
+        }
+    }
+
+    /* for use on the dark band */
+    &.btn--outline {
+        background: transparent;
+        border-color: var(--clr-on-dark);
+        color: var(--clr-on-dark);
+
+        &:hover {
+            background: var(--clr-on-dark);
+            border-color: var(--clr-on-dark);
+            color: var(--clr-navy);
+        }
+    }
+
+    @media (max-width: 600px) {
+        min-width: 0;
+        padding-inline: 0.75rem;
+    }
+}
+
+/* ---------------------------------------------------------
+   7. STATEMENT
+   --------------------------------------------------------- */
+.statement {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad);
+
+    /* no label / arrows row on this one, so the block is padded evenly.
+     Slightly tighter measure so the copy breaks over four lines as designed. */
+    &.statement--plain {
+        padding-block: var(--section-pad);
+
+        /* measure tied to the type size, so it holds four lines at every width
+       instead of spilling once --fs-stmt hits its cap */
+        .statement__text {
+            max-width: min(calc(var(--fs-stmt) * 37.8), 100%);
+        }
+    }
+
+    .statement__inner {
+        width: 100%;
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+    }
+
+    /* one paragraph, two tones - the emphasis picks up mid-line like the design */
+    .statement__text {
+        margin: 0 auto;
+        max-width: min(82rem, 100%);
+        text-align: center;
+        text-transform: uppercase;
+        font-family: var(--ff-display);
+        font-size: var(--fs-stmt);
+        font-weight: 400;
+        line-height: 2.15;
+        letter-spacing: 0.012em;
+        color: var(--clr-muted);
+    }
+
+    .statement__emphasis {
+        color: var(--clr-heading);
+    }
+
+
+
+}
+
+/* --- carousel arrows (pill + glyph are baked into the PNGs) --- */
+.ctrl {
+    padding: 0;
+    line-height: 0;
+    border-radius: 999px;
+    transition: transform var(--speed) var(--ease),
+        background-color var(--speed) var(--ease);
+
+    .ctrl__img {
+        width: clamp(38px, 3.8vw, 56px);
+        transition: filter var(--speed) var(--ease);
+    }
+
+    /* Hover recolours the pill. left-arrow.png is an outline (96% transparent)
+     and right-arrow.png is a solid pill, so each needs its own treatment:
+     the outline fills navy with a knocked-out white glyph, the solid one
+     deepens. */
+    &.ctrl--prev:hover {
+        transform: translateX(-3px);
+        background: var(--clr-navy);
+
+        .ctrl__img {
+            filter: brightness(0) invert(1);
+        }
+    }
+
+    &.ctrl--next:hover {
+        transform: translateX(3px);
+
+        .ctrl__img {
+            filter: brightness(0.62);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--clr-navy);
+        outline-offset: 3px;
+    }
+}
+
+/* ---------------------------------------------------------
+   8. SLIDER
+   --------------------------------------------------------- */
+.slider {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad);
+
+    /* label + arrows now live here, so this row carries the page gutter
+       while the track below it stays full-bleed */
+    .slider__head {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+        padding-bottom: var(--section-pad-tight);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .slider__label {
+        margin: 0;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45em;
+        color: var(--clr-heading);
+        font-size: var(--fs-label);
+
+        .slider__label-lead {
+            font-family: var(--ff-display);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .slider__label-script {
+            font-family: var(--ff-script);
+            font-size: 1.15em;
+        }
+    }
+
+    .slider__controls {
+        display: flex;
+        align-items: center;
+        gap: clamp(4px, 0.6vw, 9px);
+    }
+
+    /* full-bleed: the track runs edge to edge, no gutter */
+    .slider__viewport {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        cursor: grab;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.is-dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+    }
+
+    .slider__track {
+        display: flex;
+        width: max-content;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .slider__slide {
+        position: relative;
+        flex: 0 0 var(--slide-w);
+        aspect-ratio: 575 / 700;
+        overflow: hidden;
+        background: var(--clr-navy-dark);
+    }
+
+    .slider__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    /* --- caption, only on slides that carry a title --- */
+    .slider__caption {
+        position: absolute;
+        top: clamp(1.5rem, 3.4vw, 3rem);
+        left: clamp(1rem, 2.3vw, 2.25rem);
+        color: var(--clr-on-dark);
+    }
+
+    .slider__title {
+        margin: 0;
+        max-width: 8ch;
+        font-family: var(--ff-display);
+        font-size: clamp(0.75rem, 1.35vw, 1.15rem);
+        font-weight: 500;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .slider__cta {
+        display: inline-block;
+        margin-top: clamp(0.6rem, 1.3vw, 1.1rem);
+        font-family: var(--ff-display);
+        font-size: clamp(0.55rem, 0.85vw, 0.75rem);
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding-bottom: 2px;
+        border-bottom: 1px solid transparent;
+        transition: border-color var(--speed) var(--ease);
+
+        &:hover,
+        &:focus-visible {
+            border-bottom-color: currentColor;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   9. SHOP BY CATEGORY
+   --------------------------------------------------------- */
+.category {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad);
+
+    .category__head {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+        padding-bottom: clamp(1rem, 2.6vw, 2.25rem);
+    }
+
+    .category__heading {
+        margin: 0;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45em;
+        color: var(--clr-ink);
+        font-size: var(--fs-label);
+
+        .category__heading-lead {
+            font-family: var(--ff-display);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .category__heading-script {
+            font-family: var(--ff-script);
+            font-size: 1.15em;
+        }
+    }
+
+    /* two full-bleed cards, stacked on phones */
+    .category__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .category__card {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        background: var(--clr-cream);
+        aspect-ratio: 960 / 850;
+        /* the artwork's own ratio - nothing is cropped */
+        color: var(--clr-ink);
+    }
+
+    .category__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s var(--ease);
+    }
+
+    .category__card:hover .category__img {
+        transform: scale(1.03);
+    }
+
+    /* corner monogram */
+    .category__mark {
+        position: absolute;
+        top: 5.7%;
+        right: 2.7%;
+        width: 8%;
+        height: auto;
+    }
+
+    .category__body {
+        position: absolute;
+        top: 10%;
+        left: 8%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category__brand {
+        font-family: var(--ff-script);
+        font-size: clamp(0.85rem, 1.6vw, 1.5rem);
+        line-height: 1.2;
+    }
+
+    .category__title {
+        margin-top: 0.15em;
+        font-family: var(--ff-display);
+        font-size: clamp(1.05rem, 2vw, 1.9rem);
+        font-weight: 500;
+        line-height: 1.15;
+    }
+
+    .category__cta {
+        margin-top: 0.9em;
+        font-family: var(--ff-display);
+        font-size: clamp(0.65rem, 1.05vw, 1rem);
+        line-height: 1.4;
+        border-bottom: 1px solid currentColor;
+        transition: opacity var(--speed) var(--ease);
+    }
+
+    .category__card:hover .category__cta {
+        opacity: 0.7;
+    }
+
+    /* --- phones: one card per row, overlay scaled back up --- */
+    @media (max-width: 600px) {
+        .category__grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .category__brand {
+            font-size: 1.15rem;
+        }
+
+        .category__title {
+            font-size: 1.5rem;
+        }
+
+        .category__cta {
+            font-size: 0.8rem;
+        }
+
+        .category__mark {
+            width: 3rem;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   10. FABRIC / FEATURES
+   --------------------------------------------------------- */
+.fabric {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad);
+
+    /* image bleeds off the left edge; the copy column keeps the right gutter */
+    .fabric__inner {
+        display: grid;
+        grid-template-columns: 49.5% minmax(0, 1fr);
+        column-gap: clamp(1.5rem, 7vw, 6rem);
+        align-items: center;
+    }
+
+    .fabric__media {
+        aspect-ratio: 960 / 700;
+        /* the artwork's own ratio - nothing is cropped */
+        overflow: hidden;
+        background: var(--clr-cream);
+    }
+
+    .fabric__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .fabric__list {
+        margin: 0;
+        padding: 0 var(--gutter) 0 0;
+        list-style: none;
+    }
+
+    .fabric__item+.fabric__item {
+        margin-top: clamp(1.25rem, 3vw, 2.5rem);
+    }
+
+    .fabric__title {
+        margin: 0;
+        font-family: var(--ff-display);
+        font-size: clamp(0.9rem, 1.5vw, 1.4rem);
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--clr-ink);
+    }
+
+    .fabric__text {
+        margin: clamp(0.5rem, 1.6vw, 1.2rem) 0 0;
+        /* measure in ems of the body size, so each blurb keeps its two-line
+       break whatever the viewport does */
+        max-width: min(calc(var(--fs-text) * 23.8), 100%);
+        font-family: var(--ff-display);
+        font-size: var(--fs-text);
+        font-weight: 400;
+        line-height: 1.65;
+        color: var(--clr-body);
+    }
+
+    /* --- tablets and down: stack, image first --- */
+    @media (max-width: 860px) {
+        .fabric__inner {
+            grid-template-columns: minmax(0, 1fr);
+            row-gap: clamp(1.5rem, 5vw, 2.5rem);
+        }
+
+        .fabric__list {
+            padding-inline: var(--gutter);
+        }
+
+        .fabric__text {
+            max-width: 34rem;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   11. COLLECTION SLIDERS
+   --------------------------------------------------------- */
+.collection {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad) 0;
+
+    /* rows sit close together as one group, but the group closes with the
+     same rhythm as every other section */
+    &:last-child {
+        padding-bottom: var(--section-pad);
+    }
+
+    /* heading keeps the page gutter; the track runs full-bleed beneath it */
+    .collection__head {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+        padding-bottom: clamp(0.75rem, 1.9vw, 1.6rem);
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .collection__heading {
+        margin: 0;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45em;
+        color: var(--clr-ink);
+        font-size: var(--fs-label);
+
+        .collection__heading-lead {
+            font-family: var(--ff-display);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .collection__heading-script {
+            font-family: var(--ff-script);
+            font-size: 1.15em;
+        }
+    }
+
+    .collection__link {
+        font-family: var(--ff-display);
+        font-size: clamp(0.7rem, 1.15vw, 1rem);
+        color: var(--clr-ink);
+        white-space: nowrap;
+        border-bottom: 1px solid currentColor;
+        transition: opacity var(--speed) var(--ease);
+
+        &:hover {
+            opacity: 0.65;
+        }
+    }
+
+    .collection__viewport {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        cursor: grab;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.is-dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+    }
+
+    .collection__track {
+        display: flex;
+        width: max-content;
+        gap: var(--tile-gap);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* fixed row height; the aspect ratio then sets each tile's width */
+    .collection__slide {
+        position: relative;
+        flex: none;
+        height: var(--tile-h);
+        aspect-ratio: 206 / 278;
+        overflow: hidden;
+        color: var(--clr-ink);
+
+        &.collection__slide--feature {
+            aspect-ratio: 256 / 278;
+        }
+
+        /* set by data.js when the tile colour is dark */
+        &.is-dark {
+            color: var(--clr-on-dark);
+        }
+    }
+
+    /* product PNGs are cut-outs, so they sit inside the tile colour */
+    .collection__img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center 42%;
+        user-select: none;
+        -webkit-user-drag: none;
+
+        /* the lifestyle shot is a real photo - fill the tile instead */
+        &.collection__img--cover {
+            object-fit: cover;
+            object-position: center;
+        }
+    }
+
+    .collection__wish {
+        position: absolute;
+        top: clamp(0.5rem, 1.5vw, 1.1rem);
+        right: clamp(0.5rem, 1.5vw, 1.1rem);
+        padding: 0;
+        line-height: 0;
+        color: inherit;
+        opacity: 0.9;
+        transition: transform var(--speed) var(--ease),
+            opacity var(--speed) var(--ease);
+
+        .collection__heart {
+            width: clamp(15px, 1.6vw, 22px);
+            height: auto;
+            display: block;
+            /* inherited by the path, so the markup carries no styling */
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        &:hover {
+            transform: scale(1.12);
+            opacity: 1;
+        }
+
+        &:focus-visible {
+            outline: 1px solid currentColor;
+            outline-offset: 3px;
+        }
+    }
+
+    .collection__name {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: clamp(0.6rem, 1.7vw, 1.3rem);
+        padding-inline: 0.5rem;
+        text-align: center;
+        font-family: var(--ff-display);
+        font-size: clamp(0.6rem, 1.1vw, 0.95rem);
+        line-height: 0.3;
+        color: inherit;
+    }
+
+    /* --- phones: shorter row so more than one tile stays in view --- */
+    @media (max-width: 600px) {
+        .collection__slide {
+            height: clamp(200px, 52vw, 260px);
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   12. TESTIMONIALS
+   --------------------------------------------------------- */
+.testimonial {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad);
+
+    .testimonial__inner {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+    }
+
+    .testimonial__heading {
+        margin: 0;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45em;
+        color: var(--clr-ink);
+        font-size: var(--fs-label);
+
+        .testimonial__heading-lead {
+            font-family: var(--ff-display);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .testimonial__heading-script {
+            font-family: var(--ff-script);
+            font-size: 1.15em;
+        }
+    }
+
+    /* the leading card reads at full strength and the rest fall away to the
+     right - a mask on the viewport, so it holds at any scroll position */
+    .testimonial__viewport {
+        margin-top: clamp(1.5rem, 3.5vw, 3rem);
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        cursor: grab;
+
+        -webkit-mask-image: linear-gradient(to right,
+                rgba(0, 0, 0, 1) 0%,
+                rgba(0, 0, 0, 1) 28%,
+                rgba(0, 0, 0, 0.38) 56%,
+                rgba(0, 0, 0, 0.26) 100%);
+        mask-image: linear-gradient(to right,
+                rgba(0, 0, 0, 1) 0%,
+                rgba(0, 0, 0, 1) 28%,
+                rgba(0, 0, 0, 0.38) 56%,
+                rgba(0, 0, 0, 0.26) 100%);
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.is-dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+    }
+
+    .testimonial__track {
+        display: flex;
+        width: max-content;
+        gap: var(--quote-gap);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .testimonial__slide {
+        flex: none;
+        width: var(--quote-w);
+    }
+
+    .testimonial__quote {
+        margin: 0;
+        font-family: var(--ff-display);
+        font-size: clamp(0.8rem, 1.35vw, 1.2rem);
+        font-weight: 500;
+        line-height: 1.55;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        color: var(--clr-ink);
+    }
+
+    .testimonial__name {
+        margin: clamp(1rem, 2.4vw, 2rem) 0 0;
+        font-family: var(--ff-display);
+        font-size: clamp(0.62rem, 1.05vw, 0.9rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--clr-ink);
+    }
+
+    .testimonial__role {
+        margin: clamp(0.35rem, 0.9vw, 0.7rem) 0 0;
+        font-family: var(--ff-display);
+        font-size: clamp(0.58rem, 0.95vw, 0.82rem);
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--clr-muted);
+    }
+
+    .testimonial__controls {
+        margin-top: clamp(1.25rem, 2.8vw, 2.5rem);
+        display: flex;
+        align-items: center;
+        gap: clamp(4px, 0.6vw, 9px);
+    }
+
+    /* --- phones: one card fills the row, so drop the fade --- */
+    @media (max-width: 600px) {
+        .testimonial__viewport {
+            -webkit-mask-image: none;
+            mask-image: none;
+        }
+
+        .testimonial__slide {
+            width: min(78vw, 320px);
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   13. CLOSING BAND
+   --------------------------------------------------------- */
+.outro {
+    position: relative;
+    background: var(--clr-navy);
+    padding-block: var(--section-pad);
+    padding-inline: var(--gutter);
+    text-align: center;
+    color: var(--clr-on-dark);
+
+    .outro__inner {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .outro__title {
+        margin: 0;
+        font-family: var(--ff-display);
+        font-size: clamp(1rem, 2vw, 1.85rem);
+        font-weight: 500;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .outro__text {
+        /* em-based measure keeps the two-line break at any width.
+       Measured: the break needs 29.34em-33.22em, so 31em sits mid-range. */
+        margin: clamp(0.75rem, 1.6vw, 1.4rem) 0 0;
+        max-width: 31em;
+        font-family: var(--ff-display);
+        font-size: clamp(0.6rem, 1vw, 0.85rem);
+        line-height: 1.7;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    /* a touch more compact than the hero buttons */
+    .outro__cta {
+        margin-top: clamp(1rem, 2vw, 1.75rem);
+        min-width: clamp(118px, 13.3vw, 168px);
+        padding-block: clamp(0.45rem, 0.85vw, 0.8rem);
+        font-size: clamp(0.65rem, 1.05vw, 0.92rem);
+    }
+
+    /* decorative monograms flanking the copy */
+    .outro__mark {
+        position: absolute;
+        top: 50%;
+        translate: 0 -50%;
+        width: clamp(26px, 3.4vw, 52px);
+        height: auto;
+
+        &.outro__mark--left {
+            left: 12.5%;
+        }
+
+        &.outro__mark--right {
+            right: 12.5%;
+        }
+    }
+
+    /* --- narrow screens: the copy needs the full width --- */
+    @media (max-width: 700px) {
+        .outro__mark {
+            display: none;
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   14. FOOTER
+   --------------------------------------------------------- */
+.footer {
+    background: var(--clr-surface);
+    padding-block: var(--section-pad) 0;
+    color: var(--clr-heading);
+
+    .footer__inner {
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+    }
+
+    .footer__brand {
+        display: block;
+        width: fit-content;
+        margin-inline: auto;
+        line-height: 0;
+
+        .footer__brand-img {
+            width: clamp(110px, 16vw, 230px);
+        }
+    }
+
+    /* columns are content-sized and pushed apart, so the last one lands
+     on the right edge exactly as in the design */
+    .footer__nav {
+        margin-top: clamp(2rem, 4.2vw, 4.25rem);
+        display: flex;
+        justify-content: space-between;
+        gap: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .footer__title {
+        margin: 0;
+        font-family: var(--ff-display);
+        font-size: clamp(0.62rem, 1vw, 0.9rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .footer__list {
+        margin: clamp(1rem, 1.9vw, 1.75rem) 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .footer__item+.footer__item {
+        margin-top: clamp(0.6rem, 1.15vw, 1.05rem);
+    }
+
+    .footer__link {
+        font-family: var(--ff-display);
+        font-size: clamp(0.6rem, 0.98vw, 0.88rem);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: opacity var(--speed) var(--ease);
+
+        &:hover {
+            opacity: 0.6;
+        }
+    }
+
+    /* rule + oversized word-mark closing the page */
+    .footer__mark {
+        margin-top: clamp(2rem, 4.4vw, 4.5rem);
+        border-top: 1px solid var(--clr-nav-sep);
+        line-height: 0;
+        margin-bottom: 20px;
+
+        .footer__mark-img {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    /* --- narrow screens: two columns instead of four --- */
+    @media (max-width: 700px) {
+        .footer__nav {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(1.75rem, 6vw, 2.5rem);
+        }
+    }
+}
+
+/* ---------------------------------------------------------
+   15. GLOBAL RESPONSIVE / ACCESSIBILITY
+   Everything section-specific now lives inside its own block above.
+   --------------------------------------------------------- */
+
+/* the fluid body size bottoms out too small for a phone, so pin it */
+@media (max-width: 600px) {
+    :root {
+        --fs-text: 0.95rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -1,0 +1,21 @@
+---
+/* Shared by the opening statement and the craft statement.
+   `plain` drops nothing structurally - it only adds the modifier class. */
+interface Props {
+    id?: string;
+    lead: string;
+    emphasis: string;
+    plain?: boolean;
+}
+
+const { id, lead, emphasis, plain = false } = Astro.props;
+---
+
+<section class:list={['statement', { 'statement--plain': plain }]} id={id}>
+    <div class="statement__inner">
+        <p class="statement__text">
+            <span class="statement__lead">{lead}</span>
+            <span class="statement__emphasis">{emphasis}</span>
+        </p>
+    </div>
+</section>

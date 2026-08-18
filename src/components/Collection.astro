@@ -1,0 +1,55 @@
+---
+import { siteData, COPIES } from '../data/site.js';
+
+interface Props {
+    collection: (typeof siteData.collections)[number];
+}
+
+const { collection } = Astro.props;
+const heart = siteData.icons.heart;
+
+/* caption colour follows the tile colour, so editing `bg` in site.js
+   keeps the text readable without a second setting */
+const isDarkTile = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 150;
+};
+
+const looped = Array.from({ length: COPIES }, () => collection.slides).flat();
+---
+
+<section class="collection" id={`collection-${collection.id}`}>
+    <div class="collection__head">
+        <h2 class="collection__heading">
+            <span class="collection__heading-lead">{collection.heading.lead}</span>
+            <span class="collection__heading-script">{collection.heading.script}</span>
+        </h2>
+        <a class="collection__link" href={collection.link.href}>{collection.link.label}</a>
+    </div>
+
+    <div class="collection__viewport" id={`cvp-${collection.id}`} data-slider
+        data-count={collection.slides.length}>
+        <ul class="collection__track">
+            {looped.map((s) => (
+                s.feature ? (
+                    <li class="collection__slide collection__slide--feature">
+                        <img class="collection__img collection__img--cover" src={s.src}
+                            alt={s.alt || ''} draggable="false">
+                    </li>
+                ) : (
+                    <li class:list={['collection__slide', { 'is-dark': isDarkTile(s.bg) }]}
+                        style={`background:${s.bg}`}>
+                        <img class="collection__img" src={s.src} alt={s.alt || ''} draggable="false">
+                        <button class="collection__wish" type="button" aria-label={collection.wishlistLabel}>
+                            <svg class="collection__heart" viewBox={heart.viewBox} aria-hidden="true">
+                                <path d={heart.path} />
+                            </svg>
+                        </button>
+                        <span class="collection__name">{s.title}</span>
+                    </li>
+                )
+            ))}
+        </ul>
+    </div>
+</section>

@@ -1,0 +1,47 @@
+---
+import { siteData, COPIES } from '../data/site.js';
+
+const { slider, statement } = siteData;
+const slides = slider.slides;
+
+/* the track loops, so the one true set is repeated - the middle copy is
+   the one on screen (see makeLoopSlider in src/scripts/site.js) */
+const looped = Array.from({ length: COPIES }, () => slides).flat();
+---
+
+<!-- ============ SLIDER ============ -->
+<section class="slider" id="slider">
+    <div class="slider__head">
+        <p class="slider__label">
+            <span class="slider__label-lead">{statement.label.lead}</span>
+            <span class="slider__label-script">{statement.label.script}</span>
+        </p>
+
+        <div class="slider__controls">
+            <button class="ctrl ctrl--prev" type="button" aria-label={statement.controls.prev.label}
+                data-nudge data-target="sliderViewport" data-dir="-1">
+                <img class="ctrl__img" src={statement.controls.prev.src} alt="">
+            </button>
+            <button class="ctrl ctrl--next" type="button" aria-label={statement.controls.next.label}
+                data-nudge data-target="sliderViewport" data-dir="1">
+                <img class="ctrl__img" src={statement.controls.next.src} alt="">
+            </button>
+        </div>
+    </div>
+
+    <div class="slider__viewport" id="sliderViewport" data-slider data-count={slides.length}>
+        <ul class="slider__track">
+            {looped.map((s) => (
+                <li class="slider__slide">
+                    <img class="slider__img" src={s.src} alt={s.alt || ''} draggable="false">
+                    {s.title && (
+                        <div class="slider__caption">
+                            <h3 class="slider__title">{s.title}</h3>
+                            {s.cta && <a class="slider__cta" href={s.cta.href}>{s.cta.label}</a>}
+                        </div>
+                    )}
+                </li>
+            ))}
+        </ul>
+    </div>
+</section>

@@ -1,0 +1,41 @@
+---
+import { siteData, COPIES } from '../data/site.js';
+
+const tst = siteData.testimonials;
+const looped = Array.from({ length: COPIES }, () => tst.items).flat();
+---
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="testimonial" id="testimonials">
+    <div class="testimonial__inner">
+        <h2 class="testimonial__heading">
+            <span class="testimonial__heading-lead">{tst.heading.lead}</span>
+            <span class="testimonial__heading-script">{tst.heading.script}</span>
+        </h2>
+
+        <div class="testimonial__viewport" id="tstViewport" data-slider data-count={tst.items.length}>
+            <ul class="testimonial__track">
+                {looped.map((t) => (
+                    <li class="testimonial__slide">
+                        <blockquote class="testimonial__quote">
+                            {tst.quoteMarks.open}{t.quote}{tst.quoteMarks.close}
+                        </blockquote>
+                        <p class="testimonial__name">{t.name}</p>
+                        <p class="testimonial__role">{t.role}</p>
+                    </li>
+                ))}
+            </ul>
+        </div>
+
+        <div class="testimonial__controls">
+            <button class="ctrl ctrl--prev" type="button" aria-label={tst.controls.prev.label}
+                data-nudge data-target="tstViewport" data-dir="-1">
+                <img class="ctrl__img" src={tst.controls.prev.src} alt="">
+            </button>
+            <button class="ctrl ctrl--next" type="button" aria-label={tst.controls.next.label}
+                data-nudge data-target="tstViewport" data-dir="1">
+                <img class="ctrl__img" src={tst.controls.next.src} alt="">
+            </button>
+        </div>
+    </div>
+</section>

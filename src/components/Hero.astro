@@ -1,0 +1,25 @@
+---
+import { siteData } from '../data/site.js';
+
+const { hero } = siteData;
+---
+
+<!-- ============ HERO / BANNER ============ -->
+<section class="hero" id="hero" style={`background-image: url("${hero.background}")`}>
+    <div class="hero__inner">
+        <div class="hero__content">
+            <h1 class="hero__title">{hero.title}</h1>
+            <p class="hero__tagline">{hero.tagline}</p>
+            <p class="hero__text">{hero.description}</p>
+            <div class="hero__actions">
+                {hero.buttons.map((btn) => (
+                    <a class={`btn btn--${btn.variant}`} href={btn.href}>{btn.label}</a>
+                ))}
+            </div>
+        </div>
+    </div>
+
+    <a class="hero__scroll" href={hero.scroll.href}>
+        <img class="hero__scroll-img" src={hero.scroll.src} alt={hero.scroll.alt}>
+    </a>
+</section>

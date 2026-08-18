@@ -1,0 +1,18 @@
+---
+import { siteData } from '../data/site.js';
+
+const { outro } = siteData;
+---
+
+<!-- ============ CLOSING BAND ============ -->
+<section class="outro" id="outro">
+    <img class="outro__mark outro__mark--left" src={outro.mark} alt="" aria-hidden="true">
+
+    <div class="outro__inner">
+        <h2 class="outro__title">{outro.title}</h2>
+        <p class="outro__text">{outro.text}</p>
+        <a class="btn btn--outline outro__cta" href={outro.cta.href}>{outro.cta.label}</a>
+    </div>
+
+    <img class="outro__mark outro__mark--right" src={outro.mark} alt="" aria-hidden="true">
+</section>

@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Statement from '../components/Statement.astro';
+import Slider from '../components/Slider.astro';
+import Category from '../components/Category.astro';
+import Fabric from '../components/Fabric.astro';
+import Collection from '../components/Collection.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Outro from '../components/Outro.astro';
+import Footer from '../components/Footer.astro';
+import { siteData } from '../data/site.js';
+---
+
+<Layout>
+    <Header />
+    <Hero />
+
+    <Statement id="next" lead={siteData.statement.lead} emphasis={siteData.statement.emphasis} />
+
+    <Slider />
+    <Category />
+
+    <Statement id="craft" lead={siteData.craft.lead} emphasis={siteData.craft.emphasis} plain />
+
+    <Fabric />
+
+    {siteData.collections.map((collection) => <Collection collection={collection} />)}
+
+    <Testimonials />
+    <Outro />
+    <Footer />
+</Layout>
+
+<script>
+    import '../scripts/site.js';
+</script>

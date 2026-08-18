@@ -1,0 +1,22 @@
+---
+import { siteData } from '../data/site.js';
+
+const { fabric } = siteData;
+---
+
+<!-- ============ FABRIC / FEATURES ============ -->
+<section class="fabric" id="fabric">
+    <div class="fabric__inner">
+        <div class="fabric__media">
+            <img class="fabric__img" src={fabric.image.src} alt={fabric.image.alt}>
+        </div>
+        <ul class="fabric__list">
+            {fabric.features.map((f) => (
+                <li class="fabric__item">
+                    <h3 class="fabric__title">{f.title}</h3>
+                    <p class="fabric__text">{f.text}</p>
+                </li>
+            ))}
+        </ul>
+    </div>
+</section>
