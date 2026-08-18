@@ -3,7 +3,7 @@
    All text / image paths used by the Astro components live here.
    ========================================================= */
 
-export const siteData = {
+const content = {
 
   /* ---------------- SITE ---------------- */
   site: {
@@ -276,3 +276,19 @@ export const siteData = {
    The middle copy is the one on screen; the band either side is what
    makes the loop seamless. Keep it odd and >= 3. */
 export const COPIES = 5;
+
+/* ---------------- BASE PATH ---------------- */
+/* On GitHub Pages the site is served from /edoy/, not the domain root,
+   so every "/images/..." above needs that prefix. Astro sets BASE_URL
+   from `base` in astro.config.mjs - it is "/" in dev and on a custom
+   domain, which leaves the paths untouched. */
+const BASE = import.meta.env.BASE_URL.replace(/\/+$/, "");
+
+const withBase = (v) =>
+  typeof v === "string"   ? (v.startsWith("/images/") ? BASE + v : v)
+  : Array.isArray(v)      ? v.map(withBase)
+  : v && typeof v === "object"
+    ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, withBase(x)]))
+    : v;
+
+export const siteData = withBase(content);
