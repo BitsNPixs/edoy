@@ -26,8 +26,13 @@ function makeLoopSlider(vp, track, count) {
 
     requestAnimationFrame(measure);
 
-    let resizeId;
+    /* width only: mobile Chrome fires resize when the URL bar slides away,
+       and re-measuring there would park every row back on the middle copy
+       mid-scroll. Nothing horizontal changes when only the height does. */
+    let resizeId, lastW = innerWidth;
     addEventListener('resize', () => {
+        if (innerWidth === lastW) return;
+        lastW = innerWidth;
         clearTimeout(resizeId);
         resizeId = setTimeout(measure, 150);
     });
