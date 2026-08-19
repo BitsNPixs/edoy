@@ -471,8 +471,16 @@ button {
    --------------------------------------------------------- */
 .hero {
     position: relative;
+    /* svh, not dvh: a dynamic unit re-measures on every URL-bar show/hide,
+       so Chrome on mobile re-runs `cover` mid-scroll and the background
+       reads as zooming in and out. svh is fixed for the life of the page.
+       Plain vh first, for browsers that predate the viewport units - it is
+       kept out of the @supports block so the minifier cannot drop it. */
     min-height: 100vh;
-    min-height: 100dvh;
+
+    @supports (min-height: 100svh) {
+        min-height: 100svh;
+    }
     display: flex;
     align-items: center;
     overflow: hidden;
