@@ -9,7 +9,8 @@ const content = {
   site: {
     lang: "en",                         /* <html lang> */
     title: "EDOY — Every Day On You",   /* browser tab */
-    menuLabel: "Toggle menu"            /* hamburger, for screen readers */
+    menuLabel: "Toggle menu",           /* hamburger, for screen readers */
+    favicon: "/favicon.png"             /* browser tab icon, 192x192 */
   },
 
   /* ---------------- UI ICONS ---------------- */
@@ -278,14 +279,17 @@ const content = {
 export const COPIES = 5;
 
 /* ---------------- BASE PATH ---------------- */
-/* On GitHub Pages the site is served from /edoy/, not the domain root,
-   so every "/images/..." above needs that prefix. Astro sets BASE_URL
-   from `base` in astro.config.mjs - it is "/" in dev and on a custom
-   domain, which leaves the paths untouched. */
+/* The paths above that point at files in public/ are root-absolute, so they
+   need the deploy base path in front of them. Astro sets BASE_URL from
+   `base` in astro.config.mjs: it is "/" in dev and on the custom domain,
+   which leaves them untouched, and "/edoy/" if the site ever moves back to
+   the GitHub Pages project URL. */
 const BASE = import.meta.env.BASE_URL.replace(/\/+$/, "");
 
+const isPublicAsset = (s) => s.startsWith("/images/") || s.startsWith("/favicon.");
+
 const withBase = (v) =>
-  typeof v === "string"   ? (v.startsWith("/images/") ? BASE + v : v)
+  typeof v === "string"   ? (isPublicAsset(v) ? BASE + v : v)
   : Array.isArray(v)      ? v.map(withBase)
   : v && typeof v === "object"
     ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, withBase(x)]))
