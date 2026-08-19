@@ -206,18 +206,33 @@ const content = {
       {
         quote: "The fit is the first thing people ask about. The fabric is the reason I keep coming back.",
         name: "Kevin Kart",
-        role: "Capetech CEO"
+        role: "CEO"
       },
       {
-        quote: "The fit is the first thing people ask about. The fabric is the reason I keep coming back.",
-        name: "Kevin Kart",
-        role: "Capetech CEO"
+        quote: "I own exactly three white shirts now, and all of them are EDOY. Nothing else feels this considered.",
+        name: "Priya Raman",
+        role: "Partner"
       },
       {
-        quote: "The fit is the first thing people ask about. The fabric is the reason I keep coming back.",
-        name: "Kevin Kart",
-        role: "Capetech CEO"
-      }
+        quote: "Two years of weekly washes and the collar still sits like the day it arrived. That's rare.",
+        name: "Daniel Mathew",
+        role: "Architect"
+      },
+      {
+        quote: "No logo, no print, and still the most complimented shirt in my wardrobe. That says everything.",
+        name: "Ananya Iyer",
+        role: "Brand Consultant"
+      },
+      {
+        quote: "Finally a formal shirt that doesn't need ironing twice a day. It holds its shape from a 9 a.m. meeting to dinner.",
+        name: "Rahul Menon",
+        role: "Investment Banker"
+      },
+      {
+        quote: "I used to buy shirts in bulk and replace them every season. Now I buy EDOY and stop thinking about it.",
+        name: "Sarah Thomas",
+        role: "Founder"
+      },
     ]
   },
 
