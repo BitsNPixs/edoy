@@ -177,7 +177,7 @@ const content = {
       {
         title: "Contact",
         links: [
-          { label: "+91 95974 81976", href: "tel:+919597481976" },   
+          { label: "+91 98765 43210", href: "tel:+919876543210" },   
         ]
       }
     ]
