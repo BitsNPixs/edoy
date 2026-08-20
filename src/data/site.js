@@ -167,18 +167,17 @@ const content = {
       {
         title: "Connect",
         links: [
-          { label: "Instagram", href: "#instagram" },
-          { label: "Facebook",  href: "#facebook" },
-          { label: "Youtube",   href: "#youtube" },
-          { label: "Pintrest",  href: "#pinterest" }
+          { label: "Instagram", href: "https://www.instagram.com/edoylife/" },
+          { label: "Facebook",  href: "https://www.facebook.com/EdoyLife/" },
+          { label: "Youtube",   href: "https://www.youtube.com/@EdoyLife" },
+          { label: "Pintrest",  href: "https://www.pinterest.com/edoylife/" },
+          { label: "X",  href: "https://x.com/EdoyLife" },
         ]
       },
       {
         title: "Contact",
         links: [
-          { label: "+91 98765 43210", href: "tel:+919876543210" },
-          { label: "+91 98765 43210", href: "tel:+919876543210" },
-          { label: "+91 98765 43210", href: "tel:+919876543210" }
+          { label: "+91 95974 81976", href: "tel:+919597481976" },   
         ]
       }
     ]
